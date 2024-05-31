@@ -25,7 +25,7 @@ export class ZZTS {
         this.options = options
         this.getCapabilities()
         this.getElements()
-        const remove = this.viewer.camera.changed.addEventListener(() => this.getElements())
+        this.remove = this.viewer.camera.changed.addEventListener(() => this.getElements())
     }
     getCapabilities () {
         const url = new URL(this.options.url)
@@ -39,9 +39,9 @@ export class ZZTS {
         return fetch(url)
             .then(res => res.json())
             .then(res => {
-            this.capabilities = res
-            this.options.onLoad?.(res)
-        })
+                this.capabilities = res
+                this.options.onLoad?.(res)
+            })
     }
     getElements () {
         if (this.end) return

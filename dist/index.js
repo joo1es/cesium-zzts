@@ -12,24 +12,7 @@ class ZZTS {
         this.options = options;
         this.getCapabilities();
         this.getElements();
-        this.viewer.camera.changed.addEventListener(() => this.getElements());
-        this.viewer.screenSpaceEventHandler.setInputAction(this.handleClick, cesium.ScreenSpaceEventType.LEFT_CLICK);
-    }
-    handleClick(click) {
-        var _a, _b;
-        const pickedPosition = this.viewer.scene.globe.pick(this.viewer.camera.getPickRay(click.position), this.viewer.scene);
-        if (cesium.defined(pickedPosition)) {
-            const cartographic = cesium.Cartographic.fromCartesian(pickedPosition);
-            const longitude = cesium.Math.toDegrees(cartographic.longitude);
-            const latitude = cesium.Math.toDegrees(cartographic.latitude);
-            if (cesium.Rectangle.contains(this.getRectangle(), cartographic)) {
-                (_b = (_a = this.options).onClick) === null || _b === void 0 ? void 0 : _b.call(_a, {
-                    mapPoint: { longitude, latitude },
-                    options: this.options
-                });
-                console.log('在图形内');
-            }
-        }
+        this.remove = this.viewer.camera.changed.addEventListener(() => this.getElements());
     }
     getCapabilities() {
         const url = new URL(this.options.url);
@@ -170,8 +153,7 @@ class ZZTS {
             layer.destroy();
         });
         this.layers = [];
-        if (this.entity)
-            this.viewer.entities.remove(this.entity);
+        this.remove();
     }
 }
 

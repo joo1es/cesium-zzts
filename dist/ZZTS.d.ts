@@ -1,4 +1,4 @@
-import { Viewer, Rectangle, ImageryLayer, Entity, Cartesian2 } from "cesium";
+import { Viewer, Rectangle, ImageryLayer, Entity, Cartesian2, Event } from "cesium";
 export declare class ZZTS {
     viewer: Viewer;
     options: Options;
@@ -7,10 +7,11 @@ export declare class ZZTS {
     end: boolean;
     currentElements: any[];
     entity: Entity;
-    constructor(viewer: Viewer, options: Options);
-    handleClick(click: {
+    arrowInputAction: (click: {
         position: Cartesian2;
-    }): void;
+    }) => void;
+    remove: Event.RemoveCallback;
+    constructor(viewer: Viewer, options: Options);
     getCapabilities(): Promise<void>;
     getElements(): Promise<void>;
     getCameraBounds(): {
