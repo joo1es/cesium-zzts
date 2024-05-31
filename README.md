@@ -1,12 +1,19 @@
 # Cesium-ZZTS
 
-采用ts+rollup编写的Cesium插件，适配cesium版本（1.70+）。
+## Usage
 
-## 打包
+```typescript
+import CesiumZZTS from 'cesium-zzts'
 
-```bash
-npm install
-npm run build
+const zzts = new CesiumZZTS(viewer, {
+    url: 'url here',
+    layerName: 'layerName here',
+    customParameters: {
+        layerId: 'layerId here',
+    },
+    onLoad(capabilities) {
+        zzts.fly()
+        console.log(capabilities)
+    }
+})
 ```
-
-# cesium-zzts
