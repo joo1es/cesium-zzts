@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.74/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.95/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="../dist/index.js"></script>
+    <style>
+        @import url(main.css);
+    </style>
+</head>
+
+<body>
+    <div id="MapContainer" style="width: 100%;height: 100%"></div>
+    <script>
+        Cesium.Ion.defaultAccessToken =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkM2ZkOGViOS1mYTUzLTQ0NDctYWY0Yi1hODllMzIzMTNlZjkiLCJpZCI6MjE5MDQwLCJpYXQiOjE3MTcxMjA4Njl9.1Now-B1qS-GTqoZt4LHyiObMXlfRFjNikZ_ZZX4-EqE";
+        let viewer = new Cesium.Viewer("MapContainer", {
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                url: "https://c.tile.thunderforest.com/transport/{z}/{x}/{y}.png",
+                tilingScheme: new Cesium.WebMercatorTilingScheme(),
+                maximumLevel: 19,
+            }),
+            timeline: false,
+            animation: false,
+        });
+        const zzts = new CesiumZZTS(viewer, {
+            url: 'http://119.3.38.30:8090/zz-mapServer/proxy/mapServer/layer/media',
+            layerName: 'SSTD:D20240530-000005-P0',
+            customParameters: {
+                layerId: 'SSTD:D20240530-000005-P0',
+                token: '310C2A57C14A496FBE70F3172F4472515JBUANXUTOQHM5RC'
+            },
+            onLoad(Capabilities) {
+                zzts.fly()
+                console.log(Capabilities)
+            }
+        });
+    </script>
+</body>
+
+</html>
