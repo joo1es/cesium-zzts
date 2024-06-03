@@ -100,7 +100,7 @@ class ZZTS {
         const cameraPosition = this.viewer.scene.camera.positionWC;
         const ellipsoidPosition = this.viewer.scene.globe.ellipsoid.scaleToGeodeticSurface(cameraPosition);
         const distance = Cartesian3.magnitude(Cartesian3.subtract(cameraPosition, ellipsoidPosition, new Cartesian3()));
-        return distance * 10;
+        return distance * 5;
     }
     loadImage(key, element, retry = 0) {
         if (retry === 3)

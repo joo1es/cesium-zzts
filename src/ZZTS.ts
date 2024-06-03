@@ -21,6 +21,7 @@ export class ZZTS {
     arrowInputAction: (click: { position: Cartesian2 }) => void
     removeEvent: Event.RemoveCallback
     delay = 1000
+    scale = 5
     constructor(viewer: Viewer, options: Options) {
         this.viewer = viewer
         this.options = options
@@ -116,7 +117,7 @@ export class ZZTS {
         const cameraPosition = this.viewer.scene.camera.positionWC
         const ellipsoidPosition = this.viewer.scene.globe.ellipsoid.scaleToGeodeticSurface(cameraPosition)
         const distance = Cartesian3.magnitude(Cartesian3.subtract(cameraPosition, ellipsoidPosition, new Cartesian3()))
-        return distance * 10
+        return distance * this.scale
     }
     layers: ImageryLayer[] = []
     /** 加载图片 */
