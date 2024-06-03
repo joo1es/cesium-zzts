@@ -7,7 +7,7 @@ typeof define === 'function' && define.amd ? define(['cesium'], factory) :
 class ZZTS {
     constructor(viewer, options) {
         this.end = false;
-        this.delay = 2000;
+        this.delay = 1000;
         this.layers = [];
         this.viewer = viewer;
         this.options = options;
@@ -76,8 +76,6 @@ class ZZTS {
                     const layer = this.layers[id];
                     delete this.layers[id];
                     setTimeout(() => {
-                        if (this.layers[id])
-                            return;
                         this.viewer.scene.imageryLayers.remove(layer);
                         layer.destroy();
                     }, this.delay);

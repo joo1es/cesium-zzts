@@ -20,7 +20,7 @@ export class ZZTS {
     entity: Entity
     arrowInputAction: (click: { position: Cartesian2 }) => void
     removeEvent: Event.RemoveCallback
-    delay = 2000
+    delay = 1000
     constructor(viewer: Viewer, options: Options) {
         this.viewer = viewer
         this.options = options
@@ -84,7 +84,6 @@ export class ZZTS {
                         const layer = this.layers[id]
                         delete this.layers[id]
                         setTimeout(() => {
-                            if (this.layers[id]) return
                             this.viewer.scene.imageryLayers.remove(layer)
                             layer.destroy()
                         }, this.delay)
