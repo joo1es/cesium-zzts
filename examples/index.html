@@ -6,9 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="https://cesium.com/downloads/cesiumjs/releases/1.74/Build/Cesium/Cesium.js"></script>
-    <link href="https://cesium.com/downloads/cesiumjs/releases/1.95/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-    <script src="../dist/index.js"></script>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="../dist/index.min.js"></script>
     <style>
         @import url(main.css);
     </style>
@@ -20,11 +20,11 @@
         Cesium.Ion.defaultAccessToken =
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkM2ZkOGViOS1mYTUzLTQ0NDctYWY0Yi1hODllMzIzMTNlZjkiLCJpZCI6MjE5MDQwLCJpYXQiOjE3MTcxMjA4Njl9.1Now-B1qS-GTqoZt4LHyiObMXlfRFjNikZ_ZZX4-EqE";
         let viewer = new Cesium.Viewer("MapContainer", {
-            imageryProvider: new Cesium.UrlTemplateImageryProvider({
-                url: "https://c.tile.thunderforest.com/transport/{z}/{x}/{y}.png",
-                tilingScheme: new Cesium.WebMercatorTilingScheme(),
-                maximumLevel: 19,
-            }),
+            // imageryProvider: new Cesium.UrlTemplateImageryProvider({
+            //     url: "https://c.tile.thunderforest.com/transport/{z}/{x}/{y}.png",
+            //     tilingScheme: new Cesium.WebMercatorTilingScheme(),
+            //     maximumLevel: 19,
+            // }),
             timeline: false,
             animation: false,
         });
@@ -33,7 +33,7 @@
             layerName: 'SSTD:D20240530-000005-P0',
             customParameters: {
                 layerId: 'SSTD:D20240530-000005-P0',
-                token: '10BF713269004CBA8F78C3824D4B9C1EFFZ3WB5WLRCW18UU'
+                token: '3EFFC91DD1FF451B96A75825D4FC616DPJWIB63OXF3M8PS1'
             },
             onLoad(Capabilities) {
                 zzts.fly()

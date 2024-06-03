@@ -133,7 +133,9 @@ export class ZZTS {
 
           const imageLayer = this.viewer.scene.imageryLayers.addImageryProvider(new SingleTileImageryProvider({
             url: element.url,
-            rectangle: rectangle
+            rectangle: rectangle,
+            tileHeight: img.height,
+            tileWidth: img.width
           }), this.options.index)
 
           if (!this.layers[key]) this.layers[key] = imageLayer

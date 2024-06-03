@@ -1,8 +1,4 @@
-(function (global, factory) {
-typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('cesium')) :
-typeof define === 'function' && define.amd ? define(['cesium'], factory) :
-(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.CesiumZZTS = factory(global.Cesium));
-})(this, (function (cesium) { 'use strict';
+import { Math, Cartesian3, Rectangle, SingleTileImageryProvider } from 'cesium';
 
 class ZZTS {
     constructor(viewer, options) {
@@ -88,10 +84,10 @@ class ZZTS {
     getCameraBounds() {
         const rectangle = this.viewer.camera.computeViewRectangle();
         if (rectangle) {
-            const west = cesium.Math.toDegrees(rectangle.west);
-            const south = cesium.Math.toDegrees(rectangle.south);
-            const east = cesium.Math.toDegrees(rectangle.east);
-            const north = cesium.Math.toDegrees(rectangle.north);
+            const west = Math.toDegrees(rectangle.west);
+            const south = Math.toDegrees(rectangle.south);
+            const east = Math.toDegrees(rectangle.east);
+            const north = Math.toDegrees(rectangle.north);
             return {
                 west,
                 south,
@@ -103,7 +99,7 @@ class ZZTS {
     getScale() {
         const cameraPosition = this.viewer.scene.camera.positionWC;
         const ellipsoidPosition = this.viewer.scene.globe.ellipsoid.scaleToGeodeticSurface(cameraPosition);
-        const distance = cesium.Cartesian3.magnitude(cesium.Cartesian3.subtract(cameraPosition, ellipsoidPosition, new cesium.Cartesian3()));
+        const distance = Cartesian3.magnitude(Cartesian3.subtract(cameraPosition, ellipsoidPosition, new Cartesian3()));
         return distance * 10;
     }
     loadImage(key, element, retry = 0) {
@@ -120,10 +116,12 @@ class ZZTS {
                 return;
             if (!this.currentElements.find((e) => e.id === element.id))
                 return;
-            const rectangle = cesium.Rectangle.fromDegrees(element.extent.xmin, element.extent.ymin, element.extent.xmax, element.extent.ymax);
-            const imageLayer = this.viewer.scene.imageryLayers.addImageryProvider(new cesium.SingleTileImageryProvider({
+            const rectangle = Rectangle.fromDegrees(element.extent.xmin, element.extent.ymin, element.extent.xmax, element.extent.ymax);
+            const imageLayer = this.viewer.scene.imageryLayers.addImageryProvider(new SingleTileImageryProvider({
                 url: element.url,
-                rectangle: rectangle
+                rectangle: rectangle,
+                tileHeight: img.height,
+                tileWidth: img.width
             }), this.options.index);
             if (!this.layers[key])
                 this.layers[key] = imageLayer;
@@ -144,7 +142,7 @@ class ZZTS {
         if (!this.capabilities.extent)
             return;
         const extent = this.capabilities.extent;
-        const rectangle = cesium.Rectangle.fromDegrees(extent.xmin, extent.ymin, extent.xmax, extent.ymax);
+        const rectangle = Rectangle.fromDegrees(extent.xmin, extent.ymin, extent.xmax, extent.ymax);
         return rectangle;
     }
     destory() {
@@ -158,6 +156,4 @@ class ZZTS {
     }
 }
 
-return ZZTS;
-
-}));
+export { ZZTS as default };

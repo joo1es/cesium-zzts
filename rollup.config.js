@@ -19,11 +19,23 @@ const output = (file, plugins) => ({
     plugins
 });
 
+const outputES = (file, plugins) => ({
+    input: 'src/index.ts',
+    external: ['cesium'],
+    output: {
+        globals: { 'cesium': 'Cesium' },
+        name: 'CesiumZZTS',
+        indent: false,
+        file
+    },
+    plugins
+});
+
 export default [
-    output('dist/index.js', [image(), postcss({
+    outputES('dist/index.js', [image(), postcss({
         extensions: ['.css']
-    }), resolve(), commonjs(), typescript({ tsconfig: './tsconfig.json', declaration: true }), peerDepsExternal()]),
+    }), resolve(), typescript({ tsconfig: './tsconfig.json', declaration: true }), peerDepsExternal()]),
     output('dist/index.min.js', [image(), postcss({
         extensions: ['.css']
-    }), resolve(), commonjs(), typescript({ tsconfig: './tsconfig.json', declaration: true }), peerDepsExternal(), terser()])
+    }), resolve(), typescript({ tsconfig: './tsconfig.json', declaration: true }), peerDepsExternal(), terser()])
 ];
