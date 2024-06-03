@@ -10,7 +10,8 @@ export declare class ZZTS {
     arrowInputAction: (click: {
         position: Cartesian2;
     }) => void;
-    remove: Event.RemoveCallback;
+    removeEvent: Event.RemoveCallback;
+    delay: number;
     constructor(viewer: Viewer, options: Options);
     getCapabilities(): Promise<void>;
     getElements(): Promise<void>;

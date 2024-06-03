@@ -19,13 +19,14 @@ export class ZZTS {
     currentElements: any[]
     entity: Entity
     arrowInputAction: (click: { position: Cartesian2 }) => void
-    remove: Event.RemoveCallback
+    removeEvent: Event.RemoveCallback
+    delay = 2000
     constructor(viewer: Viewer, options: Options) {
         this.viewer = viewer
         this.options = options
         this.getCapabilities()
         this.getElements()
-        this.remove = this.viewer.camera.changed.addEventListener(() => this.getElements())
+        this.removeEvent = this.viewer.camera.moveEnd.addEventListener(() => this.getElements())
     }
     getCapabilities () {
         const url = new URL(this.options.url)
@@ -78,14 +79,15 @@ export class ZZTS {
                     this.loadImage(element.id, element)
                 }
                 for (const id in this.layers) {
-                    const search = res.elements.find((element: any) => element.id === id)
+                    const search = elements.find((element: any) => element.id === id)
                     if (!search) {
                         const layer = this.layers[id]
                         delete this.layers[id]
                         setTimeout(() => {
+                            if (this.layers[id]) return
                             this.viewer.scene.imageryLayers.remove(layer)
                             layer.destroy()
-                        }, 800)
+                        }, this.delay)
                     }
                 }
 
@@ -169,7 +171,7 @@ export class ZZTS {
             layer.destroy()
         })
         this.layers = []
-        this.remove()
+        this.removeEvent()
     }
 }
 

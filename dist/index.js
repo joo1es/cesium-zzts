@@ -7,12 +7,13 @@ typeof define === 'function' && define.amd ? define(['cesium'], factory) :
 class ZZTS {
     constructor(viewer, options) {
         this.end = false;
+        this.delay = 2000;
         this.layers = [];
         this.viewer = viewer;
         this.options = options;
         this.getCapabilities();
         this.getElements();
-        this.remove = this.viewer.camera.changed.addEventListener(() => this.getElements());
+        this.removeEvent = this.viewer.camera.moveEnd.addEventListener(() => this.getElements());
     }
     getCapabilities() {
         const url = new URL(this.options.url);
@@ -70,14 +71,16 @@ class ZZTS {
                 this.loadImage(element.id, element);
             }
             for (const id in this.layers) {
-                const search = res.elements.find((element) => element.id === id);
+                const search = elements.find((element) => element.id === id);
                 if (!search) {
                     const layer = this.layers[id];
                     delete this.layers[id];
                     setTimeout(() => {
+                        if (this.layers[id])
+                            return;
                         this.viewer.scene.imageryLayers.remove(layer);
                         layer.destroy();
-                    }, 800);
+                    }, this.delay);
                 }
             }
         })
@@ -153,7 +156,7 @@ class ZZTS {
             layer.destroy();
         });
         this.layers = [];
-        this.remove();
+        this.removeEvent();
     }
 }
 
