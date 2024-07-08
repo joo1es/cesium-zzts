@@ -1,15 +1,17 @@
-import { Math, Cartesian3, Rectangle, SingleTileImageryProvider } from 'cesium';
+import { CustomDataSource, Math as Math$1, Cartesian3, Rectangle, PolygonHierarchy, ImageMaterialProperty } from 'cesium';
 
 class ZZTS {
     constructor(viewer, options) {
         this.end = false;
         this.delay = 1000;
+        this.scale = 10;
         this.layers = [];
         this.viewer = viewer;
         this.options = options;
         this.getCapabilities();
-        this.getElements();
         this.removeEvent = this.viewer.camera.moveEnd.addEventListener(() => this.getElements());
+        this.dataSource = new CustomDataSource(String(Math.random()));
+        viewer.dataSources.add(this.dataSource);
     }
     getCapabilities() {
         const url = new URL(this.options.url);
@@ -25,6 +27,7 @@ class ZZTS {
             var _a, _b;
             this.capabilities = res;
             (_b = (_a = this.options).onLoad) === null || _b === void 0 ? void 0 : _b.call(_a, res);
+            this.getElements();
         });
     }
     getElements() {
@@ -72,8 +75,7 @@ class ZZTS {
                     const layer = this.layers[id];
                     delete this.layers[id];
                     setTimeout(() => {
-                        this.viewer.scene.imageryLayers.remove(layer);
-                        layer.destroy();
+                        this.dataSource.entities.remove(layer);
                     }, this.delay);
                 }
             }
@@ -84,10 +86,10 @@ class ZZTS {
     getCameraBounds() {
         const rectangle = this.viewer.camera.computeViewRectangle();
         if (rectangle) {
-            const west = Math.toDegrees(rectangle.west);
-            const south = Math.toDegrees(rectangle.south);
-            const east = Math.toDegrees(rectangle.east);
-            const north = Math.toDegrees(rectangle.north);
+            const west = Math$1.toDegrees(rectangle.west);
+            const south = Math$1.toDegrees(rectangle.south);
+            const east = Math$1.toDegrees(rectangle.east);
+            const north = Math$1.toDegrees(rectangle.north);
             return {
                 west,
                 south,
@@ -100,12 +102,10 @@ class ZZTS {
         const cameraPosition = this.viewer.scene.camera.positionWC;
         const ellipsoidPosition = this.viewer.scene.globe.ellipsoid.scaleToGeodeticSurface(cameraPosition);
         const distance = Cartesian3.magnitude(Cartesian3.subtract(cameraPosition, ellipsoidPosition, new Cartesian3()));
-        return distance * 5;
+        return distance * this.scale;
     }
     loadImage(key, element, retry = 0) {
         if (retry === 3)
-            return;
-        if (!this.currentElements.find((e) => e.id === element.id))
             return;
         const img = new Image();
         img.src = element.url;
@@ -114,24 +114,28 @@ class ZZTS {
                 return;
             if (this.end)
                 return;
-            if (!this.currentElements.find((e) => e.id === element.id))
-                return;
             const rectangle = Rectangle.fromDegrees(element.extent.xmin, element.extent.ymin, element.extent.xmax, element.extent.ymax);
-            const imageLayer = this.viewer.scene.imageryLayers.addImageryProvider(new SingleTileImageryProvider({
-                url: element.url,
-                rectangle: rectangle,
-                tileHeight: img.height,
-                tileWidth: img.width
-            }), this.options.index);
+            const entity = this.dataSource.entities.add({
+                id: key,
+                name: key,
+                polygon: {
+                    hierarchy: rectangle2Hierarchy(rectangle),
+                    zIndex: this.options.index,
+                    material: new ImageMaterialProperty({
+                        image: element.url
+                    })
+                },
+            });
             if (!this.layers[key])
-                this.layers[key] = imageLayer;
+                this.layers[key] = entity;
         };
         img.onerror = () => {
-            setTimeout(() => this.loadImage(key, element, retry + 1), 1000);
+            setTimeout(() => this.loadImage(key, element, retry + 1), 3000);
         };
     }
     fly(duration = 3) {
-        if (!this.capabilities.extent)
+        var _a;
+        if (!((_a = this.capabilities) === null || _a === void 0 ? void 0 : _a.extent))
             return;
         this.viewer.camera.flyTo({
             destination: this.getRectangle(),
@@ -139,7 +143,8 @@ class ZZTS {
         });
     }
     getRectangle() {
-        if (!this.capabilities.extent)
+        var _a;
+        if (!((_a = this.capabilities) === null || _a === void 0 ? void 0 : _a.extent))
             return;
         const extent = this.capabilities.extent;
         const rectangle = Rectangle.fromDegrees(extent.xmin, extent.ymin, extent.xmax, extent.ymax);
@@ -148,12 +153,41 @@ class ZZTS {
     destory() {
         this.end = true;
         this.layers.forEach(layer => {
-            this.viewer.scene.imageryLayers.remove(layer);
-            layer.destroy();
+            this.dataSource.entities.remove(layer);
         });
         this.layers = [];
         this.removeEvent();
+        this.viewer.dataSources.remove(this.dataSource);
     }
+    setIndex(index) {
+        this.options.index = index;
+        this.getElements();
+    }
+    updateSort(layers) {
+        updateSort(layers);
+    }
+}
+function rectangle2Hierarchy(rectangle) {
+    var nw = Rectangle.northwest(rectangle);
+    var ne = Rectangle.northeast(rectangle);
+    var se = Rectangle.southeast(rectangle);
+    var sw = Rectangle.southwest(rectangle);
+    return new PolygonHierarchy([
+        Cartesian3.fromRadians(nw.longitude, nw.latitude),
+        Cartesian3.fromRadians(ne.longitude, ne.latitude),
+        Cartesian3.fromRadians(se.longitude, se.latitude),
+        Cartesian3.fromRadians(sw.longitude, sw.latitude)
+    ]);
+}
+function updateSort(zzts) {
+    if (zzts.length === 0)
+        return;
+    const zztsMap = [...zzts];
+    zztsMap.forEach(t => t.viewer.dataSources.remove(t.dataSource));
+    zztsMap.sort((a, b) => {
+        return a.options.index - b.options.index;
+    });
+    zztsMap.forEach(t => t.viewer.dataSources.add(t.dataSource));
 }
 
 export { ZZTS as default };

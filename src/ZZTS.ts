@@ -1,14 +1,15 @@
 import {
     Viewer,
     Rectangle,
-    ImageryLayer,
-    SingleTileImageryProvider,
     Math as CesiumMath,
     Cartesian3,
     Entity,
     Cartesian2,
-    Event
-} from "cesium";
+    Event,
+    ImageMaterialProperty,
+    PolygonHierarchy,
+    CustomDataSource
+} from "cesium"
 
 export class ZZTS {
     viewer: Viewer
@@ -21,13 +22,15 @@ export class ZZTS {
     arrowInputAction: (click: { position: Cartesian2 }) => void
     removeEvent: Event.RemoveCallback
     delay = 1000
-    scale = 5
+    scale = 10
+    dataSource: CustomDataSource
     constructor(viewer: Viewer, options: Options) {
         this.viewer = viewer
         this.options = options
         this.getCapabilities()
-        this.getElements()
         this.removeEvent = this.viewer.camera.moveEnd.addEventListener(() => this.getElements())
+        this.dataSource = new CustomDataSource(String(Math.random()))
+        viewer.dataSources.add(this.dataSource)
     }
     getCapabilities () {
         const url = new URL(this.options.url)
@@ -43,6 +46,7 @@ export class ZZTS {
             .then(res => {
                 this.capabilities = res
                 this.options.onLoad?.(res)
+                this.getElements()
             })
     }
     getElements () {
@@ -85,8 +89,7 @@ export class ZZTS {
                         const layer = this.layers[id]
                         delete this.layers[id]
                         setTimeout(() => {
-                            this.viewer.scene.imageryLayers.remove(layer)
-                            layer.destroy()
+                            this.dataSource.entities.remove(layer)
                         }, this.delay)
                     }
                 }
@@ -119,35 +122,40 @@ export class ZZTS {
         const distance = Cartesian3.magnitude(Cartesian3.subtract(cameraPosition, ellipsoidPosition, new Cartesian3()))
         return distance * this.scale
     }
-    layers: ImageryLayer[] = []
+    layers: Entity[] = []
     /** 加载图片 */
     loadImage (key: string, element: any, retry = 0) {
         if (retry === 3) return
-        if (!this.currentElements.find((e: any) => e.id === element.id)) return
+        // if (!this.currentElements.find((e: any) => e.id === element.id)) return
         const img = new Image()
         img.src = element.url
         img.onload = () => {
-          if (this.layers[key]) return
-          if (this.end) return
-          if (!this.currentElements.find((e: any) => e.id === element.id)) return
-          const rectangle = Rectangle.fromDegrees(element.extent.xmin, element.extent.ymin, element.extent.xmax, element.extent.ymax); // 替换为你的图片覆盖区域（西、南、东、北）
+            if (this.layers[key]) return
+            if (this.end) return
+            //   if (!this.currentElements.find((e: any) => e.id === element.id)) return
+            const rectangle = Rectangle.fromDegrees(element.extent.xmin, element.extent.ymin, element.extent.xmax, element.extent.ymax); // 替换为你的图片覆盖区域（西、南、东、北）
+            const entity = this.dataSource.entities.add({
+                id: key,
+                name: key,
+                polygon: {
+                    hierarchy: rectangle2Hierarchy(rectangle),
+                    zIndex: this.options.index,
+                    material: new ImageMaterialProperty({
+                        image: element.url
+                    }) // image的值为图片地址。ImageMaterialProperty默认图片不重复，不需要额外设置
+                },
+            })
+            
 
-          const imageLayer = this.viewer.scene.imageryLayers.addImageryProvider(new SingleTileImageryProvider({
-            url: element.url,
-            rectangle: rectangle,
-            tileHeight: img.height,
-            tileWidth: img.width
-          }), this.options.index)
-
-          if (!this.layers[key]) this.layers[key] = imageLayer
+            if (!this.layers[key]) this.layers[key] = entity
         }
         /** 请求失败重试 */
         img.onerror = () => {
-          setTimeout(() => this.loadImage(key, element, retry + 1), 1000)
+          setTimeout(() => this.loadImage(key, element, retry + 1), 3000)
         }
       }
     fly(duration = 3) {
-        if (!this.capabilities.extent) return
+        if (!this.capabilities?.extent) return
 
         // 使用flyTo方法
         this.viewer.camera.flyTo({
@@ -156,7 +164,7 @@ export class ZZTS {
         })
     }
     getRectangle() {
-        if (!this.capabilities.extent) return
+        if (!this.capabilities?.extent) return
         const extent = this.capabilities.extent
         const rectangle = Rectangle.fromDegrees(
             extent.xmin,
@@ -169,11 +177,18 @@ export class ZZTS {
     destory() {
         this.end = true
         this.layers.forEach(layer => {
-            this.viewer.scene.imageryLayers.remove(layer)
-            layer.destroy()
+            this.dataSource.entities.remove(layer)
         })
         this.layers = []
         this.removeEvent()
+        this.viewer.dataSources.remove(this.dataSource)
+    }
+    setIndex(index: number) {
+        this.options.index = index
+        this.getElements()
+    }
+    updateSort(layers: ZZTS[]) {
+        updateSort(layers)
     }
 }
 
@@ -185,4 +200,30 @@ interface Options {
     onGetZoom?: (zoom: number) => void,
     index?: number
     onClick?: (click: { mapPoint: { longitude, latitude }, options: Options }) => void
+}
+
+function rectangle2Hierarchy (rectangle: Rectangle) {
+    // 获取Rectangle的四个角点
+    var nw = Rectangle.northwest(rectangle);
+    var ne = Rectangle.northeast(rectangle);
+    var se = Rectangle.southeast(rectangle);
+    var sw = Rectangle.southwest(rectangle);
+
+    // 创建一个PolygonHierarchy
+    return new PolygonHierarchy([
+        Cartesian3.fromRadians(nw.longitude, nw.latitude),
+        Cartesian3.fromRadians(ne.longitude, ne.latitude),
+        Cartesian3.fromRadians(se.longitude, se.latitude),
+        Cartesian3.fromRadians(sw.longitude, sw.latitude)
+    ]);
+}
+
+export function updateSort(zzts: ZZTS[]) {
+    if (zzts.length === 0) return
+    const zztsMap = [...zzts]
+    zztsMap.forEach(t => t.viewer.dataSources.remove(t.dataSource))
+    zztsMap.sort((a, b) => {
+        return a.options.index - b.options.index
+    })
+    zztsMap.forEach(t => t.viewer.dataSources.add(t.dataSource))
 }

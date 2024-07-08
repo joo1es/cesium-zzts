@@ -1,4 +1,4 @@
-import { Viewer, Rectangle, ImageryLayer, Entity, Cartesian2, Event } from "cesium";
+import { Viewer, Rectangle, Entity, Cartesian2, Event, CustomDataSource } from "cesium";
 export declare class ZZTS {
     viewer: Viewer;
     options: Options;
@@ -12,6 +12,8 @@ export declare class ZZTS {
     }) => void;
     removeEvent: Event.RemoveCallback;
     delay: number;
+    scale: number;
+    dataSource: CustomDataSource;
     constructor(viewer: Viewer, options: Options);
     getCapabilities(): Promise<void>;
     getElements(): Promise<void>;
@@ -22,11 +24,13 @@ export declare class ZZTS {
         north: number;
     };
     getScale(): number;
-    layers: ImageryLayer[];
+    layers: Entity[];
     loadImage(key: string, element: any, retry?: number): void;
     fly(duration?: number): void;
     getRectangle(): Rectangle;
     destory(): void;
+    setIndex(index: number): void;
+    updateSort(layers: ZZTS[]): void;
 }
 interface Options {
     url: string;
@@ -43,4 +47,5 @@ interface Options {
         options: Options;
     }) => void;
 }
+export declare function updateSort(zzts: ZZTS[]): void;
 export {};

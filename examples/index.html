@@ -28,18 +28,33 @@
             timeline: false,
             animation: false,
         });
-        const zzts = new CesiumZZTS(viewer, {
-            url: 'http://119.3.38.30:8090/zz-mapServer/proxy/mapServer/layer/media',
-            layerName: 'SSTD:D20240530-000005-P0',
+        const zzts2 = new CesiumZZTS(viewer, {
+            url: 'http://t1.zjsophon.com:10000/zz/zz-mapServer/proxy/mapServer/layer/media',
+            layerName: 'SSTD:D20240606-000025-P0',
             customParameters: {
-                layerId: 'SSTD:D20240530-000005-P0',
-                token: '3EFFC91DD1FF451B96A75825D4FC616DPJWIB63OXF3M8PS1'
+                layerId: 'SSTD:D20240606-000025-P0',
+                token: '8CBE04D1D2D54F958EA85769FF39691B3R4ZVND8P7Y2T2FR'
             },
             onLoad(Capabilities) {
                 zzts.fly()
                 console.log(Capabilities)
-            }
+            },
+            index: 10
         });
+        const zzts = new CesiumZZTS(viewer, {
+            url: 'http://t1.zjsophon.com:10000/zz/zz-mapServer/proxy/mapServer/layer/media',
+            layerName: 'SSTD:D20240606-000026-P0',
+            customParameters: {
+                layerId: 'SSTD:D20240606-000026-P0',
+                token: '8CBE04D1D2D54F958EA85769FF39691B3R4ZVND8P7Y2T2FR'
+            },
+            onLoad(Capabilities) {
+                zzts.fly()
+                console.log(Capabilities)
+            },
+            index: 20
+        });
+        zzts.updateSort([zzts, zzts2])
     </script>
 </body>
 
