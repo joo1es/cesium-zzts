@@ -22,7 +22,7 @@ export class ZZTS {
     arrowInputAction: (click: { position: Cartesian2 }) => void
     removeEvent: Event.RemoveCallback
     delay = 1000
-    scale = 10
+    scale = 5
     dataSource: CustomDataSource
     constructor(viewer: Viewer, options: Options) {
         this.viewer = viewer

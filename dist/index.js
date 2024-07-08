@@ -4,7 +4,7 @@ class ZZTS {
     constructor(viewer, options) {
         this.end = false;
         this.delay = 1000;
-        this.scale = 10;
+        this.scale = 5;
         this.layers = [];
         this.viewer = viewer;
         this.options = options;
